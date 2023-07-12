@@ -1,0 +1,89 @@
+:root {
+    --primary-color: #95A2BA;
+    --secondary-color: #383D46;
+    --background-color: #21252B;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    
+   
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background-color: var(--background-color);
+    justify-items: center; 
+}
+
+#name {
+    position: absolute;
+    background-color: var(--secondary-color);
+    width: fit-content;
+    opacity: 0;
+    border-radius: 5px;
+    border: 3px solid var(--primary-color);
+    padding: 0px 5px;
+    font-size: 1.5rem;
+    color: var(--primary-color); 
+    z-index: 999;
+
+}
+
+#pageTitle {
+    position: fixed;
+    top: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2vw;
+    color: var(--primary-color); 
+    z-index: 999;
+}
+
+#buttons {
+    position: fixed;
+    top: 8vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1vw;
+    z-index: 999;
+}
+.btn {
+    padding: 1vh 1vw;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+#chatBox {
+    position: fixed;
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60vw;
+    max-width: 500px;
+    min-width: 300px;
+    height: 20vh;
+    max-height: 300px;
+    min-height: 150px;
+    
+    background-color: rgba(248, 248, 248, 0.1);
+    border: 3px solid var(--primary-color);  
+    color: var(--primary-color); 
+
+    border-radius: 10px 10px 10px 10px;
+    padding: 10px;
+    overflow: auto;
+    z-index: 999;
+}
+
+svg path {
+    cursor: pointer;
+}
