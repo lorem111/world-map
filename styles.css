@@ -33,25 +33,35 @@ body {
 
 }
 
-#pageTitle {
+#header {
     position: fixed;
-    top: 2vh;
+    top: 2vh;  /* adjust as needed */
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#pageTitle {
     font-size: 2vw;
-    color: var(--primary-color); 
+    color: var(--primary-color);
+    text-align: center; /* to ensure text is centered if it wraps */
     z-index: 999;
 }
 
 #buttons {
-    position: fixed;
-    top: 8vh;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-top: 1vh;  /* adjust as needed */
     display: flex;
     gap: 1vw;
+    justify-content: center; /* added to ensure the buttons themselves are centered */
     z-index: 999;
 }
+
+.selected {
+    outline: 2px solid #fff;
+}
+
 .btn {
     padding: 1vh 1vw;
     background-color: #333;

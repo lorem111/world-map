@@ -13,6 +13,11 @@
     var initialX = 0;
     var initialY = 0;
 
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchMoveX = 0;
+    let touchMoveY = 0;
+
     // add the mousedown event listener to start the drag
     svgMap.addEventListener('mousedown', function(event) {
         // set the initial positions when the drag starts
@@ -22,6 +27,34 @@
         // add the mousemove and mouseup event listeners
         window.addEventListener('mousemove', drag);
         window.addEventListener('mouseup', stopDrag);
+    });
+
+    svgMap.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+
+    svgMap.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        touchMoveX = e.touches[0].clientX;
+        touchMoveY = e.touches[0].clientY;
+    
+        let dx = touchMoveX - touchStartX;
+        let dy = touchMoveY - touchStartY;
+    
+        currentX += dx;
+        currentY += dy;
+    
+        svgMap.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+    
+        touchStartX = touchMoveX;
+        touchStartY = touchMoveY;
+    });
+    
+    svgMap.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        // handle end of touch event
     });
 
     // add the wheel event listener to zoom in and out

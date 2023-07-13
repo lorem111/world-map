@@ -16,12 +16,7 @@
 <body id="body">
 
     <?xml version="1.0"?>
-    <div id="pageTitle">Anytime Travel</div>
-    <div id="buttons">
-        <button class="btn">General</button>
-        <button class="btn">Food</button>
-        <button class="btn">Culture</button>
-    </div>
+    
 
     <div id="name">
         <p id="namep"></p>
@@ -1563,16 +1558,31 @@
         </circle>
     </svg>
 
+    <div id="header">
+        <div id="pageTitle">Anytime Travel</div>
+        <div id="buttons">
+            <button class="btn">General</button>
+            <button class="btn">Food</button>
+            <button class="btn">Culture</button>
+        </div>
+    </div>
+
 </body>
 
 <script>
-    
-    async function queryGPT(place) {
-            const api_url = "https://87h31cnnke.execute-api.eu-west-1.amazonaws.com/dev/map_response_turbo";
-            const country = place; // Replace "Latvia" with the desired country value
+    var type = "General";
+
+    async function queryGPT(place, type, model_in) {
+            const api_url = "https://87h31cnnke.execute-api.eu-west-1.amazonaws.com/dev/map_response";
+            //const api_url = "http://localhost:5000/map_response";
+            const country = place; 
+            //const type_in = type; 
+            const model = model_in; 
 
             const data = {
-            country: country
+            country: country,
+            type: type,
+            platform: model
             };
             console.log("Visiting url " + api_url + " for country " + country)
             const response = await fetch(api_url, {
@@ -1591,6 +1601,22 @@
 
     }
 
+    window.onload = function() {
+        const buttons = document.querySelectorAll('.btn');
+            type = "General"; // Initial type
+            document.querySelector('.btn').classList.add('selected'); // Initial selected button
+
+            buttons.forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    buttons.forEach((btn) => {
+                        btn.classList.remove('selected');
+                    });
+                    event.target.classList.add('selected');
+                    type = event.target.innerText;
+                    console.log(type);
+                });
+            });
+        }
 
     document.querySelectorAll(".allPaths").forEach(e => {
         e.addEventListener("mouseover", function () {
@@ -1614,11 +1640,17 @@
         })
 
         e.addEventListener("click",function(){
-            queryGPT(e.id)
+            console.log(e.id, type, "365")
+            document.getElementById("chat").innerText = `We are flying to ${e.id}, hold on to your seats!`
+            queryGPT(e.id, type, "365")
+
         })
 
     })
 
+
+
+    
     // document.getElementById("searchBtn").addEventListener("click", function () {
     //     country = document.getElementById("search").value
     //     document.querySelectorAll(`.allPaths`).forEach(e => {
