@@ -1,4 +1,5 @@
 
+
     // select the SVG element
     var svgMap = document.getElementById('allSvg');
 
@@ -20,6 +21,8 @@
 
     // add the mousedown event listener to start the drag
     svgMap.addEventListener('mousedown', function(event) {
+        console.log("mousedown")
+        if ('ontouchstart' in window) return;
         // set the initial positions when the drag starts
         initialX = event.clientX - currentX;
         initialY = event.clientY - currentY;
@@ -30,12 +33,14 @@
     });
 
     svgMap.addEventListener('touchstart', function(e) {
+        console.log("touchstart")
         e.preventDefault();
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
     });
 
     svgMap.addEventListener('touchmove', function(e) {
+        console.log("touchmove")
         e.preventDefault();
         touchMoveX = e.touches[0].clientX;
         touchMoveY = e.touches[0].clientY;
@@ -53,6 +58,7 @@
     });
     
     svgMap.addEventListener('touchend', function(e) {
+        console.log("touchend")
         e.preventDefault();
         // handle end of touch event
     });
@@ -91,6 +97,8 @@
 
     // this function is called when the mouse is moved
     function drag(event) {
+        console.log("dragging")
+        
         // update the current position of the mouse
         currentX = event.clientX - initialX;
         currentY = event.clientY - initialY;
@@ -101,6 +109,7 @@
 
     // this function is called when the mouse button is released
     function stopDrag() {
+        console.log("dragging stopped")
         // remove the mousemove and mouseup event listeners
         window.removeEventListener('mousemove', drag);
         window.removeEventListener('mouseup', stopDrag);

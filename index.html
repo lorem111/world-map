@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <title>Document</title>
     <script src="https://kit.fontawesome.com/37d6505749.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    
 </head>
 
 <style>
@@ -1571,35 +1573,61 @@
 
 <script>
     var type = "General";
+    var streamId = 0;
+
 
     async function queryGPT(place, type, model_in) {
-            const api_url = "https://87h31cnnke.execute-api.eu-west-1.amazonaws.com/dev/map_response";
-            //const api_url = "http://localhost:5000/map_response";
-            const country = place; 
-            //const type_in = type; 
-            const model = model_in; 
+        const currentStreamId = ++streamId;
+        console.log(currentStreamId)
+        const api_url = "https://87h31cnnke.execute-api.eu-west-1.amazonaws.com/dev/map_stream";
+        //const api_url = "http://localhost:5000/map_stream";
+        const country = place; 
+        const model = model_in; 
 
-            const data = {
+        const data = {
             country: country,
             type: type,
-            platform: model
-            };
-            console.log("Visiting url " + api_url + " for country " + country)
-            const response = await fetch(api_url, {
+            platform: 'openai'
+        };
+        console.log("Visiting url " + api_url + " for country " + country)
+        const response = await fetch(api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
-            });
+        });
 
-            const result = await response.json();
-            console.log("Result is: " + JSON.stringify(result))
-            
-            chat = await result.ai_response
-            document.getElementById("chat").innerText = `${place}: ${result.ai_response}`
+        const chatElement = document.getElementById("chat");
+        // Clear the chat textbox before appending new text
+        chatElement.innerText = "";  
 
-    }
+        const reader = response.body.getReader();
+
+        while(true) {
+            const {done, value} = await reader.read();
+
+            if(done || currentStreamId != streamId) {
+                console.log('Stream complete');
+                break;
+            }
+
+            let chunk = new TextDecoder("utf-8").decode(value);
+            for (let i = 0; i < chunk.length; i++) {
+                // Check if the current stream is still valid before rendering
+                if(currentStreamId != streamId) {
+                    break;
+                }
+                if (chunk[i] === ' ') {
+                    chatElement.textContent += ' ';
+                } else {
+                    chatElement.textContent += chunk[i];
+                }
+                // Wait for 0.02 seconds before displaying the next character(s)
+                await new Promise(resolve => setTimeout(resolve, 20));
+            }
+        }
+        }
 
     window.onload = function() {
         const buttons = document.querySelectorAll('.btn');
@@ -1639,12 +1667,29 @@
             document.getElementById("name").style.opacity = 0
         })
 
-        e.addEventListener("click",function(){
-            console.log(e.id, type, "365")
-            document.getElementById("chat").innerText = `We are flying to ${e.id}, hold on to your seats!`
-            queryGPT(e.id, type, "365")
+        let dragging = false;
+        let start = { x: 0, y: 0 };
 
-        })
+        e.addEventListener('mousedown', function(event) {
+            dragging = false;  // Reset dragging flag
+            start.x = event.clientX;
+            start.y = event.clientY;
+        });
+
+        e.addEventListener('mousemove', function(event) {
+            // If the mouse has moved more than 5px on either axis, set dragging flag to true
+            if (Math.abs(start.x - event.clientX) > 5 || Math.abs(start.y - event.clientY) > 5) {
+                dragging = true;
+            }
+        });
+
+        e.addEventListener('mouseup', function() {
+            if (!dragging) {
+                console.log(e.id, type, "365")
+                document.getElementById("chat").innerText = `We are flying to ${e.id}, hold on to your seats!`
+                queryGPT(e.id, type, "365");
+            }
+        });
 
     })
 

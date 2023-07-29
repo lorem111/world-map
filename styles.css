@@ -44,7 +44,7 @@ body {
 }
 
 #pageTitle {
-    font-size: 2vw;
+    font-size: 2.2rem;
     color: var(--primary-color);
     text-align: center; /* to ensure text is centered if it wraps */
     z-index: 999;
@@ -63,6 +63,7 @@ body {
 }
 
 .btn {
+    font-size: 0.9rem;
     padding: 1vh 1vw;
     background-color: #333;
     color: #fff;
@@ -73,18 +74,17 @@ body {
 }
 
 #chatBox {
+    /*font-family: monospace;*/
+    font-size: 1.1rem; 
+    /*font-size: 2vw; /* for larger screens */
     position: fixed;
     bottom: 5vh;
     left: 50%;
     transform: translateX(-50%);
     width: 60vw;
-    max-width: 500px;
-    min-width: 300px;
     height: 20vh;
-    max-height: 300px;
-    min-height: 150px;
     
-    background-color: rgba(248, 248, 248, 0.1);
+    background-color: rgba(2, 1, 1, 0.5);
     border: 3px solid var(--primary-color);  
     color: var(--primary-color); 
 
@@ -92,7 +92,28 @@ body {
     padding: 10px;
     overflow: auto;
     z-index: 999;
+
+    box-sizing: border-box;
 }
+
+@media (max-width: 1100px) {
+    #chatBox {
+        font-size: 1.1rem;
+        width: 80vw; /* make it wider on smaller screens */
+        height: 30vh; /* make it taller on smaller screens */
+        /* ...any other styles you want to change for smaller screens */
+    }
+}
+@media (max-width: 600px) {
+    #chatBox {
+        font-size: 1.1rem;
+        width: 80vw; /* make it wider on smaller screens */
+        height: 40vh; /* make it taller on smaller screens */
+        /* ...any other styles you want to change for smaller screens */
+    }
+}
+
+
 
 svg path {
     cursor: pointer;
