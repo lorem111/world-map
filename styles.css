@@ -4,6 +4,20 @@
     --background-color: #21252B;
 }
 
+#allSvg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: center center;
+}
+
+@media (max-width: 768px) {
+    #allSvg {
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+}
+
 * {
     margin: 0;
     padding: 0;

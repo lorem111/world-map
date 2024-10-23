@@ -1,116 +1,142 @@
+var svgMap = document.getElementById('allSvg');
+var currentX = 0;
+var currentY = 0;
+var scale = 1;
+var isDragging = false;
+var dragStartX, dragStartY;
+var dragLastX, dragLastY;
+var initialPinchDistance = 0;
 
+function handleStart(e) {
+    if (e.touches) {
+        if (e.touches.length === 2) {
+            initialPinchDistance = getPinchDistance(e);
+        } else {
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+        }
+    } else {
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+    }
+    dragLastX = dragStartX;
+    dragLastY = dragStartY;
+    isDragging = true;
+}
 
-    // select the SVG element
-    var svgMap = document.getElementById('allSvg');
-
-    // these will hold the current position of the mouse
-    var currentX = 0;
-    var currentY = 0;
-
-    // this will hold the current scale of the SVG
-    var scale = 1;
-
-    // these will hold the position of the SVG when the drag starts
-    var initialX = 0;
-    var initialY = 0;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchMoveX = 0;
-    let touchMoveY = 0;
-
-    // add the mousedown event listener to start the drag
-    svgMap.addEventListener('mousedown', function(event) {
-        console.log("mousedown")
-        if ('ontouchstart' in window) return;
-        // set the initial positions when the drag starts
-        initialX = event.clientX - currentX;
-        initialY = event.clientY - currentY;
-
-        // add the mousemove and mouseup event listeners
-        window.addEventListener('mousemove', drag);
-        window.addEventListener('mouseup', stopDrag);
-    });
-
-    svgMap.addEventListener('touchstart', function(e) {
-        console.log("touchstart")
-        e.preventDefault();
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    });
-
-    svgMap.addEventListener('touchmove', function(e) {
-        console.log("touchmove")
-        e.preventDefault();
-        touchMoveX = e.touches[0].clientX;
-        touchMoveY = e.touches[0].clientY;
+function handleMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
     
-        let dx = touchMoveX - touchStartX;
-        let dy = touchMoveY - touchStartY;
-    
-        currentX += dx;
-        currentY += dy;
-    
-        svgMap.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-    
-        touchStartX = touchMoveX;
-        touchStartY = touchMoveY;
-    });
-    
-    svgMap.addEventListener('touchend', function(e) {
-        console.log("touchend")
-        e.preventDefault();
-        // handle end of touch event
-    });
-
-    // add the wheel event listener to zoom in and out
-    svgMap.addEventListener('wheel', function(event) {
-        // prevent the default scroll behavior
-        event.preventDefault();
-
-        // remember the old scale
-          var oldScale = scale;
-          console.log("oldScale: ", oldScale);  // debug oldScale
-        // calculate the new scale
-        scale += event.deltaY * -0.001; 
-        console.log("newScale: ", scale);  // debug newScale
-
-        // restrict scale to reasonable values
-        scale = Math.min(Math.max(.75, scale), 4);
-
-        // calculate the mouse position relative to the SVG's parent element
-        var x = event.clientX - svgMap.parentElement.offsetLeft;
-        var y = event.clientY - svgMap.parentElement.offsetTop;
-        console.log("mouseX: ", x);  // debug mouse X position
-        console.log("mouseY: ", y);  // debug mouse Y position
-
-        // calculate the translation needed to keep the mouse over the same point in the SVG
-        // currentX -= x * (1 - oldScale / scale);
-        // currentY -= y * (1 - oldScale / scale);
-        console.log("currentX: ", currentX);  // debug currentX
-        console.log("currentY: ", currentY);  // debug currentY
-
-        // update the transform property to include the new position and scale
-        // svgMap.style.transform = 'translate(' + currentX + 'px, ' + currentY + 'px) scale(' + scale + ')';
-        svgMap.style.transform = 'translate(' + currentX + 'px, ' + currentY + 'px) scale(' + scale + ')';
-    }, { passive: false });  // add this to indicate that we're calling preventDefault in the event handler
-
-    // this function is called when the mouse is moved
-    function drag(event) {
-        console.log("dragging")
+    if (e.touches && e.touches.length === 2) {
+        // Pinch-to-zoom
+        var currentPinchDistance = getPinchDistance(e);
+        var pinchScale = currentPinchDistance / initialPinchDistance;
+        scale = Math.min(Math.max(0.75, scale * pinchScale), 4);
+        initialPinchDistance = currentPinchDistance;
+    } else {
+        // Regular dragging
+        var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        var clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // update the current position of the mouse
-        currentX = event.clientX - initialX;
-        currentY = event.clientY - initialY;
+        var deltaX = clientX - dragLastX;
+        var deltaY = clientY - dragLastY;
+        
+        currentX += deltaX;
+        currentY += deltaY;
+        
+        dragLastX = clientX;
+        dragLastY = clientY;
+    }
+    
+    updateTransform();
+}
 
-        // update the transform property to include the new position and current scale
-        svgMap.style.transform = 'translate(' + currentX + 'px, ' + currentY + 'px) scale(' + scale + ')';
+function handleEnd(e) {
+    isDragging = false;
+    initialPinchDistance = 0;
+}
+
+function updateTransform() {
+    requestAnimationFrame(() => {
+        svgMap.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${scale})`;
+    });
+}
+
+function handleWheel(e) {
+    e.preventDefault();
+    var delta = e.deltaY * -0.001;
+    scale = Math.min(Math.max(0.75, scale + delta), 4);
+    updateTransform();
+}
+
+function getPinchDistance(e) {
+    return Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+    );
+}
+
+function initializeSvgPosition() {
+    var isMobile = window.innerWidth <= 768;
+    var svgRect = svgMap.getBoundingClientRect();
+    var viewportWidth = window.innerWidth;
+    var viewportHeight = window.innerHeight;
+
+    if (isMobile) {
+        //mobile
+        scale = 2;
+        currentX = (viewportWidth - svgRect.width) / 2;
+        currentY = (viewportHeight - svgRect.height) / 2;
+    } else {
+        //PC
+        scale = 1;
+        currentX = (viewportWidth - svgRect.width) / 2 - 500;
+        currentY = (viewportHeight - svgRect.height) / 2 - 50;
     }
 
-    // this function is called when the mouse button is released
-    function stopDrag() {
-        console.log("dragging stopped")
-        // remove the mousemove and mouseup event listeners
-        window.removeEventListener('mousemove', drag);
-        window.removeEventListener('mouseup', stopDrag);
+    // Calculate the position to center the SVG
+
+    // Reset the SVG's position before applying our calculated transform
+    svgMap.style.left = '0';
+    svgMap.style.top = '0';
+
+    updateTransform();
+
+    console.log('SVG Rect:', svgRect);
+    console.log('Viewport:', viewportWidth, viewportHeight);
+    console.log('Calculated Position:', currentX, currentY);
+}
+
+function updateTransform() {
+    requestAnimationFrame(() => {
+        svgMap.style.transform = `translate(${currentX}px, ${currentY}px) scale(${scale})`;
+    });
+}
+
+// Attach events to the document
+document.addEventListener('mousedown', handleStart);
+document.addEventListener('touchstart', handleStart, { passive: false });
+
+document.addEventListener('mousemove', handleMove);
+document.addEventListener('touchmove', handleMove, { passive: false });
+
+document.addEventListener('mouseup', handleEnd);
+document.addEventListener('touchend', handleEnd);
+
+window.addEventListener('load', initializeSvgPosition);
+window.addEventListener('resize', initializeSvgPosition);
+
+svgMap.addEventListener('wheel', handleWheel, { passive: false });
+
+// For tapping on mobile
+svgMap.addEventListener('touchend', function(e) {
+    if (e.touches.length === 0 && // All fingers are lifted
+        Math.abs(e.changedTouches[0].clientX - startX) < 10 &&
+        Math.abs(e.changedTouches[0].clientY - startY) < 10) {
+        let element = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        if (element && element.classList.contains('allPaths')) {
+            element.dispatchEvent(new Event('tap'));
+        }
     }
+});

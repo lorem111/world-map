@@ -1654,6 +1654,7 @@
                 document.getElementById('name').style.top = y-60  + 'px'
                 document.getElementById('name').style.left = x +10 + 'px'
             }
+            
             // document.querySelectorAll(".allPaths").forEach(i => {
             //     i.style.fill = "#ececec"
             // })
@@ -1661,6 +1662,8 @@
             document.getElementById("name").style.opacity = 1
             
             document.getElementById("namep").innerText = e.id
+            e.addEventListener('touchstart', handleTouchStart);
+            e.addEventListener('touchend', handleTouchEnd);
         })
         e.addEventListener("mouseleave", function () {
             e.style.fill = "#383D46"
@@ -1692,7 +1695,25 @@
         });
 
     })
+    let touchStartTime;
+    let touchEndTime;
 
+    function handleTouchStart(event) {
+        touchStartTime = new Date().getTime();
+    }
+
+    function handleTouchEnd(event) {
+        touchEndTime = new Date().getTime();
+        if (touchEndTime - touchStartTime < 200) {  // If touch duration is less than 200ms, consider it a tap
+            event.preventDefault();
+            console.log(this.id, type, "365");
+            document.getElementById("chat").innerText = `We are flying to ${this.id}, hold on to your seats!`;
+            queryGPT(this.id, type, "365");
+        }
+    }
+
+    window.addEventListener('load', initializeSvgPosition);
+    window.addEventListener('resize', initializeSvgPosition);
 
 
     
